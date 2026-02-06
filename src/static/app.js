@@ -27,8 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Dark mode elements
   const darkModeToggle = document.getElementById("dark-mode-toggle");
-  const themeIcon = darkModeToggle.querySelector(".theme-icon");
-  const themeText = darkModeToggle.querySelector("span:last-child");
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -220,14 +218,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Dark mode functions
   function initializeDarkMode() {
+    // Check if dark mode toggle exists
+    if (!darkModeToggle) return;
+    
+    const themeIcon = darkModeToggle.querySelector(".theme-icon");
+    const themeText = darkModeToggle.querySelector("span:last-child");
+    
     // Check if user has a preference saved
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
-      enableDarkMode();
+      enableDarkMode(themeIcon, themeText);
     }
   }
 
-  function enableDarkMode() {
+  function enableDarkMode(themeIcon, themeText) {
+    if (!themeIcon || !themeText) return;
+    
     document.body.classList.add("dark-mode");
     isDarkMode = true;
     themeIcon.textContent = "☀️";
@@ -235,7 +241,9 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("theme", "dark");
   }
 
-  function disableDarkMode() {
+  function disableDarkMode(themeIcon, themeText) {
+    if (!themeIcon || !themeText) return;
+    
     document.body.classList.remove("dark-mode");
     isDarkMode = false;
     themeIcon.textContent = "🌙";
@@ -244,10 +252,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleDarkMode() {
+    if (!darkModeToggle) return;
+    
+    const themeIcon = darkModeToggle.querySelector(".theme-icon");
+    const themeText = darkModeToggle.querySelector("span:last-child");
+    
     if (isDarkMode) {
-      disableDarkMode();
+      disableDarkMode(themeIcon, themeText);
     } else {
-      enableDarkMode();
+      enableDarkMode(themeIcon, themeText);
     }
   }
 
@@ -281,7 +294,9 @@ document.addEventListener("DOMContentLoaded", () => {
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
 
   // Event listener for dark mode toggle
-  darkModeToggle.addEventListener("click", toggleDarkMode);
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", toggleDarkMode);
+  }
 
   // Close login modal when clicking outside
   window.addEventListener("click", (event) => {

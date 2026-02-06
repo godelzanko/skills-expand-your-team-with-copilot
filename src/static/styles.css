@@ -703,7 +703,7 @@ footer {
 #dark-mode-toggle {
   position: absolute;
   top: 10px;
-  right: 200px;
+  right: 200px; /* Positioned to the left of user controls which are at right: 15px */
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 6px 12px;
