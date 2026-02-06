@@ -472,6 +472,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Function to escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Function to handle social sharing
   function handleShare(event) {
     const button = event.currentTarget;
@@ -500,20 +507,47 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = mailtoUrl;
     } else if (button.classList.contains('share-copy')) {
       // Copy link to clipboard
-      navigator.clipboard.writeText(activityUrl).then(() => {
-        // Show success message
-        showMessage('Link copied to clipboard!', 'success');
-        
-        // Visual feedback on the button
-        const originalIcon = button.querySelector('.share-icon').textContent;
-        button.querySelector('.share-icon').textContent = '✓';
-        setTimeout(() => {
-          button.querySelector('.share-icon').textContent = originalIcon;
-        }, 2000);
-      }).catch((err) => {
-        console.error('Failed to copy link:', err);
-        showMessage('Failed to copy link. Please try again.', 'error');
-      });
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Modern clipboard API
+        navigator.clipboard.writeText(activityUrl).then(() => {
+          // Show success message
+          showMessage('Link copied to clipboard!', 'success');
+          
+          // Visual feedback on the button
+          const originalIcon = button.querySelector('.share-icon').textContent;
+          button.querySelector('.share-icon').textContent = '✓';
+          setTimeout(() => {
+            button.querySelector('.share-icon').textContent = originalIcon;
+          }, 2000);
+        }).catch((err) => {
+          console.error('Failed to copy link:', err);
+          showMessage('Failed to copy link. Please try again.', 'error');
+        });
+      } else {
+        // Fallback for browsers without clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = activityUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showMessage('Link copied to clipboard!', 'success');
+          
+          // Visual feedback on the button
+          const originalIcon = button.querySelector('.share-icon').textContent;
+          button.querySelector('.share-icon').textContent = '✓';
+          setTimeout(() => {
+            button.querySelector('.share-icon').textContent = originalIcon;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy link:', err);
+          showMessage('Failed to copy link. Please try again.', 'error');
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
     }
   }
 
@@ -575,16 +609,16 @@ document.addEventListener("DOMContentLoaded", () => {
       ${capacityIndicator}
       <div class="share-buttons">
         <span class="share-label">Share:</span>
-        <button class="share-btn share-twitter" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" title="Share on Twitter">
+        <button class="share-btn share-twitter" data-activity="${escapeHtml(name)}" data-description="${escapeHtml(details.description)}" title="Share on Twitter">
           <span class="share-icon">🐦</span>
         </button>
-        <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook">
+        <button class="share-btn share-facebook" data-activity="${escapeHtml(name)}" title="Share on Facebook">
           <span class="share-icon">📘</span>
         </button>
-        <button class="share-btn share-email" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" data-schedule="${formattedSchedule.replace(/"/g, '&quot;')}" title="Share via Email">
+        <button class="share-btn share-email" data-activity="${escapeHtml(name)}" data-description="${escapeHtml(details.description)}" data-schedule="${escapeHtml(formattedSchedule)}" title="Share via Email">
           <span class="share-icon">✉️</span>
         </button>
-        <button class="share-btn share-copy" data-activity="${name}" title="Copy link">
+        <button class="share-btn share-copy" data-activity="${escapeHtml(name)}" title="Copy link">
           <span class="share-icon">🔗</span>
         </button>
       </div>
