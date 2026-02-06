@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
 
+  // Dark mode elements
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+
   // Activity categories with corresponding colors
   const activityTypes = {
     sports: { label: "Sports", color: "#e8f5e9", textColor: "#2e7d32" },
@@ -43,6 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+
+  // Dark mode state
+  let isDarkMode = false;
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -210,6 +216,54 @@ document.addEventListener("DOMContentLoaded", () => {
     showMessage("You have been logged out.", "info");
   }
 
+  // Dark mode functions
+  function initializeDarkMode() {
+    // Check if dark mode toggle exists
+    if (!darkModeToggle) return;
+    
+    const themeIcon = darkModeToggle.querySelector(".theme-icon");
+    const themeText = darkModeToggle.querySelector("span:last-child");
+    
+    // Check if user has a preference saved
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      enableDarkMode(themeIcon, themeText);
+    }
+  }
+
+  function enableDarkMode(themeIcon, themeText) {
+    if (!themeIcon || !themeText) return;
+    
+    document.body.classList.add("dark-mode");
+    isDarkMode = true;
+    themeIcon.textContent = "☀️";
+    themeText.textContent = "Light Mode";
+    localStorage.setItem("theme", "dark");
+  }
+
+  function disableDarkMode(themeIcon, themeText) {
+    if (!themeIcon || !themeText) return;
+    
+    document.body.classList.remove("dark-mode");
+    isDarkMode = false;
+    themeIcon.textContent = "🌙";
+    themeText.textContent = "Dark Mode";
+    localStorage.setItem("theme", "light");
+  }
+
+  function toggleDarkMode() {
+    if (!darkModeToggle) return;
+    
+    const themeIcon = darkModeToggle.querySelector(".theme-icon");
+    const themeText = darkModeToggle.querySelector("span:last-child");
+    
+    if (isDarkMode) {
+      disableDarkMode(themeIcon, themeText);
+    } else {
+      enableDarkMode(themeIcon, themeText);
+    }
+  }
+
   // Show message in login modal
   function showLoginMessage(text, type) {
     loginMessage.textContent = text;
@@ -238,6 +292,11 @@ document.addEventListener("DOMContentLoaded", () => {
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
+
+  // Event listener for dark mode toggle
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", toggleDarkMode);
+  }
 
   // Close login modal when clicking outside
   window.addEventListener("click", (event) => {
@@ -962,6 +1021,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeDarkMode();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
