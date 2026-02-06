@@ -7,9 +7,10 @@ from argon2 import PasswordHasher
 
 # Connect to MongoDB (or use mongomock if MongoDB is not available)
 try:
+    from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure
     client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=2000)
     client.admin.command('ping')  # Test connection
-except Exception:
+except (ServerSelectionTimeoutError, ConnectionFailure):
     # Fall back to mongomock for development/testing
     import mongomock
     client = mongomock.MongoClient()
